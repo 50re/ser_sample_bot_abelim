@@ -41,3 +41,5 @@ bin/
 
 # general
 *.class
+
+src/main/scala/MyConfig.scala

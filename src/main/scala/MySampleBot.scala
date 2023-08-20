@@ -1,14 +1,13 @@
 import MyButtons.{backBtn, supportBtn}
 import MyConfig.supportChatId
 import MyMenus.{mainMenuMarkup, suppportMenuMarkup}
-import MySampleBot.handleMessage
 import cats.syntax.functor._
 import com.bot4s.telegram.api.declarative.{Action, Commands, Messages, RegexCommands}
 import com.bot4s.telegram.future.Polling
 
 import scala.concurrent.Future
 import scala.util.Try
-import com.bot4s.telegram.methods.{ForwardMessage, SetMyCommands}
+import com.bot4s.telegram.methods.{ForwardMessage, SendMessage, SetMyCommands}
 import com.bot4s.telegram.models.{BotCommand, Message}
 
 class MySampleBot(token: String)
@@ -16,7 +15,7 @@ class MySampleBot(token: String)
     with Polling
     with Commands[Future]
     with RegexCommands[Future] {
-  var state = new MyBotState
+  private var state = new MyBotState
   object Int {
     def unapply(s: String): Option[Int] = Try(s.toInt).toOption
   }
@@ -36,15 +35,24 @@ class MySampleBot(token: String)
         replyMarkup = Option(mainMenuMarkup)
       ).void
     case `backBtn` =>
-      reply("Операция отменена",replyMarkup = Option(mainMenuMarkup)).void
-    case `supportBtn` if !state.supportRequesters.contains(msg.from.get) =>
+      state.cancelSupport(msg.from.get)
+      println(s"deleted support ${msg.from.get}, state: ${state.supportRequesters.length}")
+      reply("Операция отменена", replyMarkup = Option(mainMenuMarkup)).void
+
+    case `supportBtn` =>
       state.requestSupport(msg.from.get)
+      println(s"requested support ${msg.from.get}, state: ${state.supportRequesters.length}")
       println("Accepted Support")
       reply(
         text = "Отправьте сообщение о проблеме для техподдержки",
         replyMarkup = Option(suppportMenuMarkup)
       ).void
-    case _ if state.isSupportRequester(msg.from.get) && msg.text.get != backBtn =>
+
+    case _ => handleMessage()
+  }}
+
+  private def handleMessage()(implicit msg: Message): Future[Unit] = msg match {
+    case _ if state.isSupportRequester(msg.from.get) =>
       request(ForwardMessage(
         chatId = supportChatId,
         fromChatId = msg.chat.chatId,
@@ -55,13 +63,9 @@ class MySampleBot(token: String)
         text = "✅ Операция выполнена успешно",
         replyMarkup = Option(mainMenuMarkup)
       ).void
-    //case _ => handleMessage(msg,state)
-  }}
-
-}
-
-object MySampleBot {
-  def handleMessage(msgs: Messages, state: MyBotState): Message  = {
-
+    case _ => reply(
+        text = "Команда не распознана или пока не реализована",
+        replyMarkup = Option(mainMenuMarkup)
+      ).void
   }
 }

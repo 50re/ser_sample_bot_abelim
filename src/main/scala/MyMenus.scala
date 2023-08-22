@@ -3,7 +3,7 @@ import com.bot4s.telegram.models.{KeyboardButton, ReplyKeyboardMarkup, ReplyMark
 import com.bot4s.telegram.models._
 
 object MyMenus {
-  val mainMenuMarkup: ReplyMarkup = ReplyKeyboardMarkup(
+  val contextMenuMarkup: ReplyMarkup = ReplyKeyboardMarkup(
     Seq(
       Seq(
         KeyboardButton(text = menuBtn)
@@ -13,5 +13,12 @@ object MyMenus {
       )
     )
   )
-  val suppportMenuMarkup: ReplyMarkup = ReplyKeyboardMarkup.singleButton(KeyboardButton(backBtn))
+  val mainMenuMarkup: InlineKeyboardMarkup = InlineKeyboardMarkup(
+    Seq(
+      Seq(
+        InlineKeyboardButton(text = )
+      )
+    )
+  )
+  val supportMenuMarkup: ReplyMarkup = ReplyKeyboardMarkup.singleButton(KeyboardButton(backBtn))
 }

@@ -91,8 +91,8 @@ class MySampleBot(token: String)
   Future[Unit] = {
     reply(
       text = "Меню (заглушка)",
-      replyMarkup =
-    )
+      replyMarkup = Option(contextMenuMarkup)
+    ).void
   }
 
 }

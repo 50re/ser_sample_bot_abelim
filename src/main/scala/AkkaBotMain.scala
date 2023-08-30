@@ -1,0 +1,3 @@
+object AkkaBotMain extends App {
+
+}
